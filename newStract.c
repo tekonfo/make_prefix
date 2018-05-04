@@ -1,0 +1,307 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <iostream>
+#include <vector>
+#include <iterator>
+#include <fstream>
+#include <algorithm>
+
+#include "zebra.hpp"
+#include "city.hpp"
+
+/* ノードの構造体 */
+typedef struct _n {
+//  int id;              /* 添字 */
+  std::string str;
+  int prefix;             /* prefix(32ビット) */
+  int asc;                //asc
+  struct _n *left;     /* 左 -- 自己参照 */
+  struct _n *b_left;
+  struct _n *right;    /* 右 -- 自己参照 */
+  struct _n *b_right;
+  int skipnum;
+  std::string skipval;
+  bool blackOrWhite;
+} _node;
+
+int toTwo(uint decimal)
+{
+  /* 変数の宣言 */
+  int i;
+  int binary[32];
+
+  for(i=0;decimal>0;i++){
+    binary[i] = decimal % 2;
+    decimal = decimal / 2;
+  }
+
+  int count = i;
+
+  /* 2進数の出力 */
+  printf(" 2進数 = ");
+  while( i>0 ){
+    printf("%d", binary[--i]);
+  }
+  printf("\n");
+
+  return count;
+}
+
+
+int maskPrefix(int deep,int prefix){
+  prefix = prefix & (1 << deep);
+  return prefix << (32 - deep);
+}
+
+void set_node(){
+
+}
+
+
+void set_node(_node *p2,std::string str,
+  std::string skipval,int skipnum,bool blackOrWhite
+  ,struct _n *left,struct _n *right,struct _n *b_left,struct _n *b_right){
+    p2->left = left;
+    p2->right = right;
+    p2->b_left = b_left;
+    p2->b_right = b_right;
+    p2->skipnum = skipnum;
+    p2->skipval = skipval;
+    p2->str += str;
+    p2->blackOrWhite = blackOrWhite;
+}
+
+std::string get_answer(_node *p1,std::string last_skipval){
+  std::string answer = "";
+  if (p1->str.size() > 0)
+  {
+    answer = p1->str.substr(0,p1->str.size() -1) + p1->skipval + p1->str.back();
+  }else{
+    answer = p1->skipval;
+  }
+  std::cout << "\nanswer = " + answer;
+  return answer;
+}
+
+
+/* 二分探索木の生成 -- 再帰を利用*/
+void maketree(_node *p1, int deep,entry_type entry,std::string str)
+{
+  _node *p2;
+  if (deep > entry.length)
+  {
+    printf("break\n");
+    return;
+  }
+
+  printf("start\n");
+  std::cout << "\np1->str = " + p1->str + "str = " + str;
+  std::string last_skipval "";
+  if (p1->skipval.size() > 0)
+  {
+    last_skipval(1, p1->skipval.back()); // "a"
+  }
+  std::string  answer;
+  answer = get_answer(p1,last_skipval);
+  printf("\n");
+  std::cout << "str.substr  = " + str.substr(0, answer.size());
+  printf("\nanswer size = %lu\n", answer.size());
+  printf("str size = %lu\n", str.size());
+  printf("ddd\n");
+
+  if (answer.size() >= str.size() && answer == str.substr(0, answer.size()))//この分岐だけど、strの長さが足りないときにどうなるのかは微妙
+  {
+    printf("start rollback\n");
+    //ロールバック
+    p2 = static_cast<_node *>(malloc(sizeof(_node)));
+// strncmp(str.front(),"0",1)
+    if (str[0] == '1')
+    {
+      printf("bbb\n");
+      p1->skipval.pop_back();
+      set_node(p2,last_skipval,p1->skipval,p1->skipnum - 1,false,NULL,p1,p1->b_left,p1->b_right);
+      _node *p0 = p1->b_left;
+      p0->right = p2;//これメモリ取れてないな
+      printf("make tree\n");
+      set_node(p1,answer,"",0,p1->blackOrWhite,p1->left,p1->right,p2,NULL);
+      printf("make tree\n");
+      maketree(p2, deep, entry,str);
+    }else{
+      printf("ccc\n");
+      p1->skipval.pop_back();
+      set_node(p2,last_skipval,p1->skipval,p1->skipnum - 1,false,p1,NULL,p1->b_left,p1->b_right);
+      _node *p0 = p1->b_left;
+      p0->right = p2;
+      set_node(p1,answer,"",0,p1->blackOrWhite,p1->left,p1->right,NULL,p2);
+      maketree(p2, deep, entry,str);
+    }
+  }
+
+printf("step2\n");
+  if (p1->str == str){
+    p1->asc = entry.number;
+    p1->blackOrWhite = true;
+    std::cout << "\nsuccess! prefix = " + p1->str;
+  }else{
+    printf("deep = %d\n", deep);
+    if (str[deep++] == '1') {
+      /* 右がNULLならそこに新たなノードをぶら下げる */
+      if (p1->blackOrWhite==false && p1->right == NULL){
+        //スキップ
+        printf("skip active case 1\n");
+        p2 = static_cast<_node *>(malloc(sizeof(_node)));
+        set_node(p2,p1->str + "1",p1->skipval + "1",p1->skipnum + 1,false,NULL,NULL,p1->b_left,NULL);
+        _node *p0 = p1->b_left;
+        p0->right = p2;
+        std::cout << "\nskipval = " + p2->skipval +" skipnum = ";
+        printf("%d\n", p2->skipnum);
+        maketree(p2, deep, entry,str);
+      }else{
+        if (p1->right == NULL)
+        {
+          printf("right node null \n");
+          p2 = static_cast<_node *>(malloc(sizeof(_node)));
+          set_node(p2,p1->str + "1","",0,false,NULL,NULL,NULL,p1);
+          p1->right = p2;
+          maketree(p2, deep, entry,str);
+        }else{
+          printf("left node is already exist!\n");
+          maketree(p1->right, deep, entry,str);
+        }
+      }
+    } else {
+      /* 左がNULLならそこに新たなノードをぶら下げる */
+      if (p1->blackOrWhite==false && p1->left == NULL){
+        printf("skip active case 0\n");
+        p2 = static_cast<_node *>(malloc(sizeof(_node)));
+        set_node(p2,p1->str + "0",p1->skipval + "0",p1->skipnum + 1,false,NULL,NULL,NULL,p1->b_right);
+        _node *p0 = p1->b_right;
+        p0->right = p2;
+        std::cout << "\nskipval = " + p2->skipval +" skipnum = ";
+        maketree(p2, deep, entry,str);
+      }else{
+        if (p1->left == NULL)
+        {
+          printf("left node null active\n");
+          p2 = static_cast<_node *>(malloc(sizeof(_node)));
+          set_node(p2,p1->str + "0",p1->skipval + "0",p1->skipnum + 1,false,NULL,p1,NULL,NULL);
+          p1->left = p2;
+          maketree(p1->left, deep, entry,str);
+        }else{
+          printf("left node is already exist!\n");
+          maketree(p1->left, deep, entry,str);
+        }
+      }
+    }
+  }
+}
+
+
+std::string makearray(entry_type entry,std::string str){
+  int nonExistLength = 32 - toTwo(entry.prefix);//25
+  int k = 0;
+  for (k = 0; k < nonExistLength; ++k)
+  {
+    if (k < entry.length)
+    {
+      str+= "0";
+    }
+  }
+  int i;
+  int binary[32];
+  int decimal = entry.prefix >> (32 - entry.length);
+  int count =0;
+
+  for(i=0;decimal>0;i++){
+    binary[i] = decimal % 2;
+    decimal = decimal / 2;
+    count = i;
+  }
+
+  while(count >= 0){
+    if (k < entry.length){
+      if (binary[count] == 1)
+      {
+        str+= "1";
+      }else{
+        str+= "0";
+      }
+    }else{
+      break;
+    }
+    k++;
+    count--;
+  }
+  std::cout << "str = " + str;
+  return str;
+}
+
+// int judgeBinary(){
+
+// }
+
+/* 木構造をたどって探索 */
+int search(_node *p, int n)
+{
+  while (p != NULL) {
+    if (n == p->prefix) {
+      return(0);  /* 値が見付かれば終了 */
+    } else if (n <= p->prefix) {
+      p = p->left;
+    } else {
+      p = p->right;
+    }
+  }
+  /* ループを抜け出たということは見付からなかったということ */
+  printf("%d は見付かりませんでした。¥n", n);
+  return(-1);
+}
+
+void strinit(char s[], int num)
+{
+  int i;
+
+  for (i = 0; i < num; i++) {
+    s[i] = '\0';
+  }
+}
+
+/* ---------------------------------------------
+   main
+   ---------------------------------------------- */
+void makeStruct(std::vector<entry_type> entry_list)
+{
+printf("start\n");
+  _node *start, *p1;
+  /* 先頭のノードを初期化 */
+  start = static_cast<_node *>(malloc(sizeof(_node)));
+  start->prefix = 0;
+  start->asc = 0;
+  start->left = NULL;
+  start->right = NULL;
+  start->b_left = NULL;
+  start->b_right = NULL;
+  start->blackOrWhite = true;
+  start->str = "";
+  p1 = start;
+
+
+  /* 残る値から木構造を生成 */
+  for (int i = 0;entry_list.size() != i; ++i)
+  {
+    // char array[entry_list[i].length+1];
+    // strinit(array,entry_list[i].length+1);
+    // makearray(entry_list[i],array);
+    std::string str = "";
+    str = makearray(entry_list[i],str);
+    //32-acs文削る
+    maketree(start, 0, entry_list[i],str);
+    /* code */
+  }
+  /* 木構造をたどって探索 */
+}
+
+
+//https://www.grapecity.com/tools/support/powernews/column/clang/052/page03.htmを
+//をコピペした
