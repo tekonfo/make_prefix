@@ -205,9 +205,12 @@ void maketree(_node *p1, int deep,entry_type entry,std::string givenPrefix)
         std::string last_str = "";
         last_str =  p1->str.back();
         p1->str.pop_back();
-        rollback_node(p1,p2);
+        if (rollback_node(p1,p2))
+        {
+        set_node(p2,p1->str + "1",p1->skipval + last_str,p1->skipnum + 1,false,NULL,NULL,NULL,p1->b_right);
+        }else{
         set_node(p2,p1->str + "1",p1->skipval + last_str,p1->skipnum + 1,false,NULL,NULL,p1->b_left,NULL);
-
+        }
         std::cout << "skipval = " + p2->skipval +" skipnum = ";
         maketree(p2, deep, entry,givenPrefix);
       }else{
@@ -231,8 +234,12 @@ void maketree(_node *p1, int deep,entry_type entry,std::string givenPrefix)
         std::string last_str = "";
         last_str =  p1->str.back();
         p1->str.pop_back();
-        rollback_node(p1,p2);
+        if (rollback_node(p1,p2))
+        {
+        set_node(p2,p1->str + "0",p1->skipval + last_str,p1->skipnum + 1,false,NULL,NULL,NULL,p1->b_right);
+        }else{
         set_node(p2,p1->str + "0",p1->skipval + last_str,p1->skipnum + 1,false,NULL,NULL,p1->b_left,NULL);
+        }
         maketree(p2, deep, entry,givenPrefix);
       }else{
         if (p1->left == NULL)
