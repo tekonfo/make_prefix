@@ -184,7 +184,7 @@ void maketree(_node *p1, int deep,entry_type entry,std::string givenPrefix)
         maketree(p2, deep, entry,givenPrefix);
       }else{
         printf("lollback P is 0 and child are both or empty\n");
-        set_node(p2,last_skipval,p1->skipval,p1->skipnum - 1,false,p1,NULL,p1->b_left,p1->b_right);
+        set_node(p2,nextstr,p1->skipval,p1->skipnum - 1,false,p1,NULL,p1->b_left,p1->b_right);
         printf("test\n");
         if (p1->b_right == NULL)
         {
