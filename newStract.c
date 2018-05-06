@@ -96,103 +96,119 @@ void maketree(_node *p1, int deep,entry_type entry,std::string givenPrefix)
   }
   std::cout << "\np1->str = " + p1->str + " str = " + givenPrefix;
   std::string last_skipval  = "";
-  if (p1->skipval.size() > 0)
-  {
-    last_skipval = p1->skipval.back(); // "a"
-  }
   std::string  answer;
   answer = get_answer(p1,last_skipval);
+  if (p1->skipval.size() > 0)
+  {
+    last_skipval = p1->skipval.back(); // last_skipvalはskipvalの最後
+  }else{
+    printf("\n");
+    printf("skipval.size = 0\n");
+    last_skipval = answer[answer.size()-2];
+    std::cout << "lastskipval  = " + last_skipval;
+    printf("\n");
+  }
+
   // if (answer.size() >= givenPrefix.size())
   // {
-    if (answer.size() > givenPrefix.size() || answer != givenPrefix.substr(0, answer.size()))
+  if (answer.size() > givenPrefix.size() || answer != givenPrefix.substr(0, answer.size()))
+  {
+    printf("start rollback\n");
+    //ロールバック
+    p2 = static_cast<_node *>(malloc(sizeof(_node)));
+    std::string  nextstr;
+    nextstr = p1->str;
+    nextstr.pop_back();
+    nextstr = nextstr + last_skipval;
+    p1->skipval.pop_back();
+    // strncmp(str.front(),"0",1)
+    if (last_skipval == "1")
     {
-      printf("start rollback\n");
-      //ロールバック
-      p2 = static_cast<_node *>(malloc(sizeof(_node)));
-      // strncmp(str.front(),"0",1)
-      if (last_skipval == "1")
+      if (p1->right != NULL && p1->left == NULL)
       {
-        p1->skipval.pop_back();
-        if (p1->right != NULL && p1->left == NULL)
-        {
-          printf("lollback P is 1 and child = 1\n");
-          set_node(p2,last_skipval,p1->skipval,p1->skipnum - 1,false,NULL,p1->right,p1->b_left,p1->b_right);
-          _node *p0 = p1->b_left;
-          p0->right = p2;
-          _node *p3 = p1->right;
-          p3->b_left = p2;
-          p3->b_right = NULL;
-          //p1のメモリの解放
-          //set_node(p1,answer,"",0,p1->blackOrWhite,p1->left,p1->right,p2,NULL);
-          //set_node(p3,p3->str,"1" + p3->skipval,,p3->blackOrWhite,p3->left,p3->right,p2,NULL);
-          printf("\n");
-          maketree(p2, deep, entry,givenPrefix);
-        }else if(p1->right == NULL && p1->left != NULL){
-          printf("lollback P is 1 and child = 0\n");
-          set_node(p2,last_skipval,p1->skipval,p1->skipnum - 1,false,p1->left,NULL,p1->b_left,p1->b_right);
-          _node *p0 = p1->b_right;
-          p0->left = p2;
-          _node *p3 = p1->left;
-          p3->b_right = p2;
-          //set_node(p1,answer,"",0,p1->blackOrWhite,p1->left,p1->right,p2,NULL);
-          //set_node(p3,p3->str,"1" + p3->skipval,p3->skipnum + 1,p3->blackOrWhite,p3->right,p3->right,NULL,p2);
-          maketree(p2, deep, entry,givenPrefix);
-        }else{
-          printf("lollback P is 1 and child are both\n");
-          set_node(p2,last_skipval,p1->skipval,p1->skipnum - 1,false,NULL,p1,p1->b_left,p1->b_right);
-          _node *p0 = p1->b_left;
-          p0->right = p2;
-          set_node(p1,answer,"",0,p1->blackOrWhite,p1->left,p1->right,p2,NULL);
-          maketree(p2, deep, entry,givenPrefix);
-        }
+        printf("lollback P is 1 and child = 1\n");
+        set_node(p2,nextstr,p1->skipval,p1->skipnum - 1,false,NULL,p1->right,p1->b_left,p1->b_right);
+        _node *p0 = p1->b_left;
+        p0->right = p2;
+        _node *p3 = p1->right;
+        p3->b_left = p2;
+        p3->b_right = NULL;
+        //p1のメモリの解放
+        //set_node(p1,answer,"",0,p1->blackOrWhite,p1->left,p1->right,p2,NULL);
+        //set_node(p3,p3->str,"1" + p3->skipval,,p3->blackOrWhite,p3->left,p3->right,p2,NULL);
+        printf("\n");
+        maketree(p2, deep, entry,givenPrefix);
+      }else if(p1->right == NULL && p1->left != NULL){
+        printf("lollback P is 1 and child = 0\n");
+        set_node(p2,nextstr,p1->skipval,p1->skipnum - 1,false,p1->left,NULL,p1->b_left,p1->b_right);
+        _node *p0 = p1->b_right;
+        p0->left = p2;
+        _node *p3 = p1->left;
+        p3->b_right = p2;
+        //set_node(p1,answer,"",0,p1->blackOrWhite,p1->left,p1->right,p2,NULL);
+        //set_node(p3,p3->str,"1" + p3->skipval,p3->skipnum + 1,p3->blackOrWhite,p3->right,p3->right,NULL,p2);
+        maketree(p2, deep, entry,givenPrefix);
       }else{
-        if (p1->right != NULL && p1->left == NULL)
-        {
-          printf("lollback P is 0 and child = 1\n");
-          set_node(p2,last_skipval,p1->skipval,p1->skipnum - 1,false,NULL,p1->right,p1->b_left,p1->b_right);
-          _node *p0 = p1->b_left;
-          p0->right = p2;
-          _node *p3 = p1->right;
-          p3->b_left = p2;
-          p3->b_right = NULL;
-          //set_node(p3,p3->str,"0" + p3->skipval,p3->skipnum + 1,p3->blackOrWhite,p3->left,p3->right,p2,NULL);
-          //p1のメモリの解放
-          //set_node(p1,answer,"",0,p1->blackOrWhite,p1->left,p1->right,p2,NULL);
-          maketree(p2, deep, entry,givenPrefix);
-        }else if(p1->right == NULL && p1->left != NULL){
-          printf("lollback P is 0 and child = 0\n");
-          set_node(p2,last_skipval,p1->skipval,p1->skipnum - 1,false,p1->left,NULL,p1->b_left,p1->b_right);
-          _node *p0 = p1->b_right;
-          p0->left = p2;
-          _node *p3 = p1->left;
-          p3->b_right = p2;
-          p3->b_left = NULL;
-          //set_node(p1,answer,"",0,p1->blackOrWhite,p1->left,p1->right,p2,NULL);
-          //set_node(p3,p3->str,"0" + p3->skipval,p3->skipnum + 1,p3->blackOrWhite,p3->right,p3->right,NULL,p2);
-          maketree(p2, deep, entry,givenPrefix);
-        }else{
-          printf("lollback P is 0 and child are both or empty\n");
-          set_node(p2,last_skipval,p1->skipval,p1->skipnum - 1,false,p1,NULL,p1->b_left,p1->b_right);
-          printf("test\n");
-          _node *p0 = p1->b_right;
-          printf("test\n");///
-          p0->left = p2;
-          printf("test\n");
-          set_node(p1,answer,"",0,p1->blackOrWhite,p1->left,p1->right,NULL,p2);
-          printf("test\n");
-          maketree(p2, deep, entry,givenPrefix);
-
-          // printf("lollback P is 1 and child are both\n");
-          // set_node(p2,last_skipval,p1->skipval,p1->skipnum - 1,false,NULL,p1,p1->b_left,p1->b_right);
-          // _node *p0 = p1->b_left;
-          // p0->right = p2;
-          // set_node(p1,answer,"",0,p1->blackOrWhite,p1->left,p1->right,p2,NULL);
-          // maketree(p2, deep, entry,givenPrefix);
-        }
-
+        printf("lollback P is 1 and child are both\n");
+        set_node(p2,nextstr,p1->skipval,p1->skipnum - 1,false,NULL,p1,p1->b_left,p1->b_right);
+        _node *p0 = p1->b_left;
+        p0->right = p2;
+        set_node(p1,answer,"",0,p1->blackOrWhite,p1->left,p1->right,p2,NULL);
+        maketree(p2, deep, entry,givenPrefix);
       }
-      return;
+    }else{
+      if (p1->right != NULL && p1->left == NULL)
+      {
+        printf("lollback P is 0 and child = 1\n");
+        p1->str.pop_back();
+        set_node(p2,nextstr,p1->skipval,p1->skipnum - 1,false,NULL,p1->right,p1->b_left,p1->b_right);
+        _node *p0 = p1->b_left;
+        p0->right = p2;
+        _node *p3 = p1->right;
+        p3->b_left = p2;
+        p3->b_right = NULL;
+        //set_node(p3,p3->str,"0" + p3->skipval,p3->skipnum + 1,p3->blackOrWhite,p3->left,p3->right,p2,NULL);
+        //p1のメモリの解放
+        //set_node(p1,answer,"",0,p1->blackOrWhite,p1->left,p1->right,p2,NULL);
+        maketree(p2, deep, entry,givenPrefix);
+      }else if(p1->right == NULL && p1->left != NULL){
+        printf("lollback P is 0 and child = 0\n");
+        set_node(p2,nextstr,p1->skipval,p1->skipnum - 1,false,p1->left,NULL,p1->b_left,p1->b_right);
+        _node *p0 = p1->b_right;
+        p0->left = p2;
+        _node *p3 = p1->left;
+        p3->b_right = p2;
+        p3->b_left = NULL;
+        //set_node(p1,answer,"",0,p1->blackOrWhite,p1->left,p1->right,p2,NULL);
+        //set_node(p3,p3->str,"0" + p3->skipval,p3->skipnum + 1,p3->blackOrWhite,p3->right,p3->right,NULL,p2);
+        maketree(p2, deep, entry,givenPrefix);
+      }else{
+        printf("lollback P is 0 and child are both or empty\n");
+        set_node(p2,last_skipval,p1->skipval,p1->skipnum - 1,false,p1,NULL,p1->b_left,p1->b_right);
+        printf("test\n");
+        if (p1->b_right == NULL)
+        {
+          printf("error\n");//ポインタ刺し間違えている
+        }
+        _node *p0 = p1->b_right;
+        printf("test\n");///上のノードが存在していない
+        p0->left = p2;
+        printf("test\n");
+        set_node(p1,answer,"",0,p1->blackOrWhite,p1->left,p1->right,NULL,p2);
+        printf("test\n");
+        maketree(p2, deep, entry,givenPrefix);
+
+        // printf("lollback P is 1 and child are both\n");
+        // set_node(p2,last_skipval,p1->skipval,p1->skipnum - 1,false,NULL,p1,p1->b_left,p1->b_right);
+        // _node *p0 = p1->b_left;
+        // p0->right = p2;
+        // set_node(p1,answer,"",0,p1->blackOrWhite,p1->left,p1->right,p2,NULL);
+        // maketree(p2, deep, entry,givenPrefix);
+      }
+
     }
+    return;
+  }
 
   if (answer == givenPrefix){
     p1->asc = entry.number;
@@ -201,7 +217,9 @@ void maketree(_node *p1, int deep,entry_type entry,std::string givenPrefix)
     printf("\n");
   }else{
     printf("deep = %d\n", deep);
-    if (givenPrefix[deep++] == '1') {
+    std::cout << "nextprefix = " + givenPrefix[answer.size()];
+    printf("\n");
+    if (givenPrefix[answer.size()] == '1') {
       /* 右がNULLならそこに新たなノードをぶら下げる */
       if (p1->blackOrWhite==false && p1->left == NULL){
         //スキップ
