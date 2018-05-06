@@ -84,6 +84,21 @@ std::string get_answer(_node *p1,std::string last_skipval){
   return answer;
 }
 
+void rollback_node(_node *p1,_node *p2,std::string last_str,std::string oneOrZero){
+  if (p1->b_left == NULL)
+  {
+    printf("parent is b_right\n");
+    set_node(p2,p1->str + oneOrZero,p1->skipval + last_str,p1->skipnum + 1,false,NULL,NULL,NULL,p1->b_right);
+    _node *p0 = p1->b_right;
+    p0->left = p2;
+  }else{
+    printf("parent is b_left\n");
+    set_node(p2,p1->str + oneOrZero,p1->skipval + last_str,p1->skipnum + 1,false,NULL,NULL,p1->b_left,NULL);
+    _node *p0 = p1->b_left;
+    p0->right = p2;
+  }
+}
+
 
 /* 二分探索木の生成 -- 再帰を利用*/
 void maketree(_node *p1, int deep,entry_type entry,std::string givenPrefix)
@@ -208,23 +223,7 @@ void maketree(_node *p1, int deep,entry_type entry,std::string givenPrefix)
         std::string last_str = "";
         last_str =  p1->str.back();
         p1->str.pop_back();
-        printf("test\n");
-        if (p1->b_left == NULL)
-        {
-          printf("parent is b_right\n");
-          if (p1->b_right == NULL)
-          {
-            printf("b_right is also null\n");
-          }
-          set_node(p2,p1->str + "1",p1->skipval + last_str,p1->skipnum + 1,false,NULL,NULL,NULL,p1->b_right);
-          _node *p0 = p1->b_right;
-          p0->left = p2;
-        }else{
-          printf("parent is b_left\n");
-          set_node(p2,p1->str + "1",p1->skipval + last_str,p1->skipnum + 1,false,NULL,NULL,p1->b_left,NULL);
-          _node *p0 = p1->b_left;
-          p0->right = p2;
-        }
+        rollback_node(p1,p2,last_str,"1");
         std::cout << "skipval = " + p2->skipval +" skipnum = ";
         maketree(p2, deep, entry,givenPrefix);
       }else{
@@ -248,22 +247,7 @@ void maketree(_node *p1, int deep,entry_type entry,std::string givenPrefix)
         std::string last_str = "";
         last_str =  p1->str.back();
         p1->str.pop_back();
-        if (p1->b_left == NULL)
-        {
-          printf("parent is b_right\n");
-          if (p1->b_right == NULL)
-          {
-            printf("b_right is also null\n");
-          }
-          set_node(p2,p1->str + "0",p1->skipval + last_str,p1->skipnum + 1,false,NULL,NULL,NULL,p1->b_right);
-          _node *p0 = p1->b_right;
-          p0->left = p2;
-        }else{
-          printf("parent is b_left\n");
-          set_node(p2,p1->str + "0",p1->skipval + last_str,p1->skipnum + 1,false,NULL,NULL,p1->b_left,NULL);
-          _node *p0 = p1->b_left;
-          p0->right = p2;
-        }
+        rollback_node(p1,p2,last_str,"0");
         maketree(p2, deep, entry,givenPrefix);
       }else{
         if (p1->left == NULL)
