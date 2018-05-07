@@ -216,10 +216,11 @@ void maketree(_node *p1, int deep,entry_type entry,std::string givenPrefix)
       }else{
         if (p1->right == NULL)
         {
-          printf("right node null \n");
+          printf("right node null active\n");
           p2 = static_cast<_node *>(malloc(sizeof(_node)));
-          set_node(p2,p1->str + "1",p1->skipval,p1->skipnum,false,NULL,NULL,p1,NULL);
+          set_node(p2,answer + "1","",0,false,NULL,NULL,p1,NULL);
           p1->right = p2;
+          printf("test\n");
           maketree(p2, deep, entry,givenPrefix);
         }else{
           printf("right node is already exist!\n");
@@ -246,7 +247,7 @@ void maketree(_node *p1, int deep,entry_type entry,std::string givenPrefix)
         {
           printf("left node null active\n");
           p2 = static_cast<_node *>(malloc(sizeof(_node)));
-          set_node(p2,p1->str + "0",p1->skipval,p1->skipnum ,false,NULL,NULL,NULL,p1);
+          set_node(p2,answer + "0","",0 ,false,NULL,NULL,NULL,p1);
           p1->left = p2;
           maketree(p1->left, deep, entry,givenPrefix);
         }else{
