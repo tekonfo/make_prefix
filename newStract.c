@@ -9,7 +9,7 @@
 
 #include "zebra.hpp"
 #include "city.hpp"
-
+#include "search.c"
 /* ノードの構造体 */
 typedef struct _n {
 //  int id;              /* 添字 */
@@ -24,6 +24,55 @@ typedef struct _n {
   std::string skipval;
   bool blackOrWhite;
 } _node;
+
+
+int search(_node *p,std::string gavePrefix)
+{
+  std::string latest_long_prefix;
+  std::string answer;
+  while (p != NULL) {
+    if (p->str.length() > 0)
+    {
+      answer = p->str.substr(0,p->str.size() -1) + p->skipval + p->str.back();
+    }else{
+      answer = p->skipval;
+    }
+      std::cout << "\nanswer= " + answer;
+
+
+    if (gavePrefix.length() < answer.length())
+    {//終わり
+      printf("一致経路は見つかりませんでした。\n");
+      printf("gavePrefix size = %lu\n", gavePrefix.length());
+      std::cout << "\nlatest_long_prefix = " + latest_long_prefix;
+      return -1;
+    }
+//次の文字がいちかどうかで検索
+    if (p->blackOrWhite == true)
+    {
+      latest_long_prefix = answer;
+    }
+
+
+printf("gavePrefix answer is %lu\n", answer.length());
+    if (gavePrefix == answer) {
+      printf("経路が一致しました。ac番号は%dです。\n",p->asc );
+      return p->asc;  /* 値が見付かれば終了 */
+    } else if (gavePrefix[answer.length()] == '1') {
+      p = p->right;
+      printf("右に行くます\n");
+    } else {
+      printf("左に行きます\n");
+      p = p->left;
+    }
+  }
+  /* ループを抜け出たということは見付からなかったということ */
+  printf("一致経路 は見付かりませんでした");
+  return -1;
+}
+
+
+
 
 int toTwo(uint decimal)
 {
@@ -70,7 +119,7 @@ std::string get_answer(_node *p1,std::string last_skipval){
   }else{
     answer = p1->skipval;
   }
- // std::cout << "\nanswer = " + answer;
+  std::cout << "\nanswer = " + answer;
   return answer;
 }
 
@@ -91,11 +140,13 @@ int rollback_node(_node *p1,_node *p2){
 
 
 /* 二分探索木の生成 -- 再帰を利用*/
-void maketree(_node *p1, int deep,entry_type entry,std::string givenPrefix)
+void maketree(_node *p1, int deep,entry_type entry,std::string gavePrefix)
 {
- // std::cout << "\n givenPrefix = " + givenPrefix;
+  //関数移動すると引数の内容忘れる可能性あるので、変数に保存
+  std::string givenPrefix = gavePrefix;
+  std::cout << "\n givenPrefix = " + givenPrefix;
   _node *p2 = new _node;
-//  std::cout << "\np1->str = " + p1->str + " str = " + givenPrefix;
+  std::cout << "\np1->str = " + p1->str + " str = " + givenPrefix;
   std::string last_skipval  = "";
   std::string answer = "";
   std::string str_size = p1->str;
@@ -106,7 +157,7 @@ void maketree(_node *p1, int deep,entry_type entry,std::string givenPrefix)
   }else{
     answer = p1->skipval;
   }
-  //std::cout << "\nanswer = " + answer;
+  std::cout << "\nanswer = " + answer;
 
   if (answer.size() > givenPrefix.size() || answer != givenPrefix.substr(0, answer.size()))
   {
@@ -177,9 +228,8 @@ void maketree(_node *p1, int deep,entry_type entry,std::string givenPrefix)
         p3->b_right = p2;
         maketree(p2, deep, entry,givenPrefix);
       }else{
-
         printf("lollback P is 0 and child are both or empty\n");
-        set_node(p2,nextstr,p1->skipval,p1->skipnum,false,p1,NULL,p1->b_left,p1->b_right);
+        set_node(p2,nextstr,p1->skipval,0,false,p1,NULL,p1->b_left,p1->b_right);
         set_node(p1,answer,"",0,p1->blackOrWhite,p1->left,p1->right,NULL,p2);
         maketree(p2, deep, entry,givenPrefix);
       }
@@ -191,12 +241,16 @@ void maketree(_node *p1, int deep,entry_type entry,std::string givenPrefix)
     p1->asc = entry.number;
     p1->blackOrWhite = true;
     printf("\n");
-   // std::cout << "success! answer = " + answer;
+    std::cout << "success! answer = " + answer;
     printf("\n");
     return;
   }else{
     if (givenPrefix[answer.size()] == '1') {
       /* 右がNULLならそこに新たなノードをぶら下げる */
+      if (p1->left == NULL )
+      {
+        printf("error\n");
+      }
       if (p1->blackOrWhite==false && p1->left == NULL){
         printf("skip active case 1\n");
         std::string last_str = "";
@@ -208,7 +262,7 @@ void maketree(_node *p1, int deep,entry_type entry,std::string givenPrefix)
         }else{
         set_node(p2,p1->str + "1",p1->skipval + last_str,p1->skipnum + 1,false,NULL,NULL,p1->b_left,NULL);
         }
-        //std::cout << "skipval = " + p2->skipval +" skipnum = ";
+        std::cout << "skipval = " + p2->skipval +" skipnum = ";
         maketree(p2, deep, entry,givenPrefix);
       }else{
         if (p1->right == NULL)
@@ -292,26 +346,13 @@ std::string makearray(entry_type entry,std::string str){
     k++;
     count--;
   }
- // std::cout << "str = " + str;
+  std::cout << "str = " + str;
   return str;
 }
 
 /* 木構造をたどって探索 */
-int search(_node *p, int n)
-{
-  while (p != NULL) {
-    if (n == p->prefix) {
-      return(0);  /* 値が見付かれば終了 */
-    } else if (n <= p->prefix) {
-      p = p->left;
-    } else {
-      p = p->right;
-    }
-  }
-  /* ループを抜け出たということは見付からなかったということ */
-  printf("%d は見付かりませんでした。¥n", n);
-  return(-1);
-}
+
+
 
 void strinit(char s[], int num)
 {
@@ -325,7 +366,7 @@ void strinit(char s[], int num)
 /* ---------------------------------------------
    main
    ---------------------------------------------- */
-void makeStruct(std::vector<entry_type> entry_list)
+void makeStruct(std::vector<entry_type> entry_list,std::string makep)
 {
 printf("start\n");
   _node *start, *p1;
@@ -356,6 +397,41 @@ printf("start\n");
     maketree(start, 0, entry_list[i],str);
     /* code */
   }
+  search(start,makep);
+}
+
+
+
+std::string makebit_a(char* ar2,char* ar3,char* ar4,char* ar5){
+  std::string str = "";
+  int    a = std::stoi(ar2); // 3
+  int    b = std::stoi(ar3); // 3
+  int    c = std::stoi(ar4); // 3
+  int    d = std::stoi(ar5); // 3
+printf("a = %d\n", a);
+  uint e = a << 24 | b << 16 |c << 8 | d;
+  int count = 0;
+  int i;
+  int binary[32];
+  printf("e = %u\n", e);
+
+  for(i=0;e>0;i++){
+    binary[i] = e % 2;
+    e = e / 2;
+    count = i;
+  }
+
+  while(count >= 0){
+    if (binary[count] == 1)
+    {
+      str+= "1";
+    }else{
+      str+= "0";
+    }
+    count--;
+  }
+  std::cout << "makebit = " + str;
+  return str;
 }
 
 

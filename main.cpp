@@ -57,7 +57,8 @@ int main(int argc, char *argv[])
 
     read_zebra_data(entry_list, argv[1]);
     shiftToBit(entry_list);
-    makeStruct(entry_list);
+    std::string str = makebit_a(argv[2],argv[3],argv[4],argv[5]);
+    makeStruct(entry_list,str);
 
 
     // end tsc measurement
