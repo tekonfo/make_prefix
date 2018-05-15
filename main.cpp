@@ -75,7 +75,7 @@ int main(int argc, char *argv[])
 
     // std::copy(entry_list.begin(), entry_list.end(), std::ostream_iterator<entry_type>(std::cout, "\n"));
     std::for_each(entry_list.begin(), entry_list.end(), [](const entry_type& obj) {
-            std::cout << obj.prefix << std::endl;
+       //     std::cout << obj.prefix << std::endl;
         });
 
     return 0;

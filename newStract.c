@@ -39,7 +39,7 @@ int search(_node *p,std::string gavePrefix)
     }else{
       answer = p->skipval;
     }
-      std::cout << "\nanswer= " + answer;
+      //std::cout << "\nanswer= " + answer;
     // if (gavePrefix.length() < answer.length())
     // {//終わり
     //   printf("一致経路は見つかりませんでした。\n");
@@ -58,19 +58,19 @@ int search(_node *p,std::string gavePrefix)
     {
       latest_long_prefix = answer;
       ac_number = p->asc;
-      std::cout << "\nlatest_long_prefix = " + latest_long_prefix;
+      //std::cout << "\nlatest_long_prefix = " + latest_long_prefix;
     }
 
-    printf("gavePrefix answer is %lu\n", answer.length());
+    //printf("gavePrefix answer is %lu\n", answer.length());
     // if (gavePrefix == answer) {
     //   printf("経路が一致しました。ac番号は%dです。\n",p->asc );
     //   return p->asc;  /* 値が見付かれば終了 */
     // } else
     if (gavePrefix[answer.length()] == '1') {
       p = p->right;
-      printf("右に行くます\n");
+      //printf("右に行くます\n");
     } else {
-      printf("左に行きます\n");
+      //printf("左に行きます\n");
       p = p->left;
     }
   }
@@ -94,11 +94,11 @@ int toTwo(uint decimal)
     decimal = decimal / 2;
   }
   int count = i;
-  printf(" 2進数 = ");
-  while( i>0 ){
-    printf("%d", binary[--i]);
-  }
-  printf("\n");
+  // printf(" 2進数 = ");
+  // while( i>0 ){
+  //   printf("%d", binary[--i]);
+  // }
+  // printf("\n");
   return count;
 }
 
@@ -130,19 +130,19 @@ std::string get_answer(_node *p1,std::string last_skipval){
   }else{
     answer = p1->skipval;
   }
-  std::cout << "\nanswer = " + answer;
+  //std::cout << "\nanswer = " + answer;
   return answer;
 }
 
 int rollback_node(_node *p1,_node *p2){
   if (p1->b_left == NULL)
   {
-    printf("parent is b_right\n");
+    //printf("parent is b_right\n");
     _node *p0 = p1->b_right;
     p0->left = p2;
     return 1;
   }else{
-    printf("parent is b_left\n");
+    //printf("parent is b_left\n");
     _node *p0 = p1->b_left;
     p0->right = p2;
     return 0;
@@ -177,9 +177,9 @@ void maketree(_node *p1, int deep,entry_type entry,std::string gavePrefix)
 {
   //関数移動すると引数の内容忘れる可能性あるので、変数に保存
   std::string givenPrefix = gavePrefix;
-  std::cout << "\n givenPrefix = " + givenPrefix;
+  //std::cout << "\n givenPrefix = " + givenPrefix;
   _node *p2 = new _node;
-  std::cout << "\np1->str = " + p1->str + " str = " + givenPrefix;
+  //std::cout << "\np1->str = " + p1->str + " str = " + givenPrefix;
   std::string last_skipval  = "";
   std::string answer = "";
   std::string str_size = p1->str;
@@ -191,23 +191,26 @@ void maketree(_node *p1, int deep,entry_type entry,std::string gavePrefix)
     answer = p1->skipval;
   }
 
-  std::cout << "\nanswer = " + answer;
+  //std::cout << "\nanswer = " + answer;
 
   if (answer.size() > givenPrefix.size() || answer != givenPrefix.substr(0, answer.size()))
   {
-    printf("start rollback\n");
+    //printf("start rollback\n");
     //どの位置から一致していないのかを検索する
     int match_correct = search_not_match(answer,givenPrefix);
     rollback_node(p1,p2);
+    std::string match_answer = answer.substr(0,match_correct);
+    //std::cout << "\nmatch answer = " + match_answer;
     if(child_is_left(match_correct,answer)){
-      set_node(p2,answer.substr(0,match_correct),"",0,false,p1,NULL,p1->b_left,p1->b_right);
-      set_node(p1,answer,"",0,false,p1->left,p1->right,NULL,p2);
+      set_node(p2,match_answer,"",0,false,p1,NULL,p1->b_left,p1->b_right);
+      set_node(p1,answer,"",0,p1->blackOrWhite,p1->left,p1->right,NULL,p2);
       maketree(p2, deep, entry,givenPrefix);
     }else{
-      set_node(p2,answer.substr(0,match_correct),"",0,false,NULL,p1,p1->b_left,p1->b_right);
-      set_node(p1,answer,"",0,false,p1->left,p1->right,p2,NULL);
+      set_node(p2,match_answer,"",0,false,NULL,p1,p1->b_left,p1->b_right);
+      set_node(p1,answer,"",0,p1->blackOrWhite,p1->left,p1->right,p2,NULL);
       maketree(p2, deep, entry,givenPrefix);
     }
+    return;
     // if (p1->skipval.size() > 0)
     // {
     //   last_skipval = p1->skipval.back(); // last_skipvalはskipvalの最後
@@ -288,14 +291,14 @@ void maketree(_node *p1, int deep,entry_type entry,std::string gavePrefix)
   if (answer == givenPrefix){
     p1->asc = entry.number;
     p1->blackOrWhite = true;
-    printf("\n");
-    std::cout << "success! answer = " + answer;
-    printf("\n");
-    return;
+    // printf("\n");
+    // std::cout << "success! answer = " + answer;
+    // printf("\n");
+     return;
   }else{
     if (givenPrefix[answer.size()] == '1') {
       if (p1->blackOrWhite==false && p1->left == NULL){
-        printf("skip active case 1\n");
+        //printf("skip active case 1\n");
         std::string last_str = "";
         last_str =  p1->str.back();
         p1->str.pop_back();
@@ -305,24 +308,24 @@ void maketree(_node *p1, int deep,entry_type entry,std::string gavePrefix)
         }else{
         set_node(p2,p1->str + "1",p1->skipval + last_str,p1->skipnum + 1,false,NULL,NULL,p1->b_left,NULL);
         }
-        std::cout << "skipval = " + p2->skipval +" skipnum = ";
+        //std::cout << "skipval = " + p2->skipval +" skipnum = ";
         maketree(p2, deep, entry,givenPrefix);
       }else{
         if (p1->right == NULL)
         {
-          printf("right node null active\n");
+          //printf("right node null active\n");
           set_node(p2,answer + "1","",0,false,NULL,NULL,p1,NULL);
           p1->right = p2;
           maketree(p2, deep, entry,givenPrefix);
         }else{
-          printf("right node is already exist!\n");
+          //printf("right node is already exist!\n");
           delete p2;
           maketree(p1->right, deep, entry,givenPrefix);
         }
       }
     } else {
       if (p1->blackOrWhite==false && p1->right == NULL){
-        printf("skip active case 0\n");
+        //printf("skip active case 0\n");
         std::string last_str = "";
         last_str =  p1->str.back();
         p1->str.pop_back();
@@ -336,12 +339,12 @@ void maketree(_node *p1, int deep,entry_type entry,std::string gavePrefix)
       }else{
         if (p1->left == NULL)
         {
-          printf("left node null active\n");
+          //printf("left node null active\n");
           set_node(p2,answer + "0","",0 ,false,NULL,NULL,NULL,p1);
           p1->left = p2;
           maketree(p1->left, deep, entry,givenPrefix);
         }else{
-          printf("left node is already exist!\n");
+          //printf("left node is already exist!\n");
           delete p2;
           maketree(p1->left, deep, entry,givenPrefix);
         }
@@ -389,7 +392,7 @@ std::string makearray(entry_type entry,std::string str){
     k++;
     count--;
   }
-  std::cout << "str = " + str;
+  //std::cout << "str = " + str;
   return str;
 }
 
@@ -455,8 +458,6 @@ std::string makebit_a(char* ar2,char* ar3,char* ar4,char* ar5){
   int count = 0;
   int i;
   int binary[32];
-  printf("e = %u\n", e);
-
   int nonExistLength = 32 - toTwo(e);//25
   int k = 0;
   for (k = 0; k < nonExistLength; ++k)
