@@ -28,7 +28,9 @@ typedef struct _n {
 
 int search(_node *p,std::string gavePrefix)
 {
+  std::cout << "\n gavePrefix = " + gavePrefix;
   std::string latest_long_prefix;
+  uint ac_number = 0;
   std::string answer;
   while (p != NULL) {
     if (p->str.length() > 0)
@@ -38,27 +40,33 @@ int search(_node *p,std::string gavePrefix)
       answer = p->skipval;
     }
       std::cout << "\nanswer= " + answer;
-
-
-    if (gavePrefix.length() < answer.length())
-    {//終わり
-      printf("一致経路は見つかりませんでした。\n");
-      printf("gavePrefix size = %lu\n", gavePrefix.length());
-      std::cout << "\nlatest_long_prefix = " + latest_long_prefix;
-      return -1;
-    }
+    // if (gavePrefix.length() < answer.length())
+    // {//終わり
+    //   printf("一致経路は見つかりませんでした。\n");
+    //   std::cout << "\nlatest_long_prefix = " + latest_long_prefix;
+    //   return -1;
+    // }
+      if (answer.size() > 0 && gavePrefix.substr(0,answer.size()) != answer)
+      {
+        printf("route not match\n");
+        std::cout << "\nlatest_long_prefix = " + latest_long_prefix;
+        printf("ac番号は %uです\n",ac_number);
+        return -1;
+      }
 //次の文字がいちかどうかで検索
     if (p->blackOrWhite == true)
     {
       latest_long_prefix = answer;
+      ac_number = p->asc;
+      std::cout << "\nlatest_long_prefix = " + latest_long_prefix;
     }
 
-
-printf("gavePrefix answer is %lu\n", answer.length());
-    if (gavePrefix == answer) {
-      printf("経路が一致しました。ac番号は%dです。\n",p->asc );
-      return p->asc;  /* 値が見付かれば終了 */
-    } else if (gavePrefix[answer.length()] == '1') {
+    printf("gavePrefix answer is %lu\n", answer.length());
+    // if (gavePrefix == answer) {
+    //   printf("経路が一致しました。ac番号は%dです。\n",p->asc );
+    //   return p->asc;  /* 値が見付かれば終了 */
+    // } else
+    if (gavePrefix[answer.length()] == '1') {
       p = p->right;
       printf("右に行くます\n");
     } else {
@@ -67,7 +75,10 @@ printf("gavePrefix answer is %lu\n", answer.length());
     }
   }
   /* ループを抜け出たということは見付からなかったということ */
-  printf("一致経路 は見付かりませんでした");
+  printf("最長経路は\n");
+  std::cout << latest_long_prefix;
+  printf("です\n");
+  printf("ac番号は %uです\n",ac_number);
   return -1;
 }
 
@@ -157,6 +168,7 @@ void maketree(_node *p1, int deep,entry_type entry,std::string gavePrefix)
   }else{
     answer = p1->skipval;
   }
+
   std::cout << "\nanswer = " + answer;
 
   if (answer.size() > givenPrefix.size() || answer != givenPrefix.substr(0, answer.size()))
@@ -184,7 +196,8 @@ void maketree(_node *p1, int deep,entry_type entry,std::string gavePrefix)
     rollback_node(p1,p2);
 
 
-    if (last_skipval == "1")
+
+    if (answer[answer.back()-1] == '1')
     {
       if (p1->right != NULL && p1->left == NULL)
       {
@@ -237,6 +250,7 @@ void maketree(_node *p1, int deep,entry_type entry,std::string gavePrefix)
     return;
   }
 
+
   if (answer == givenPrefix){
     p1->asc = entry.number;
     p1->blackOrWhite = true;
@@ -246,11 +260,6 @@ void maketree(_node *p1, int deep,entry_type entry,std::string gavePrefix)
     return;
   }else{
     if (givenPrefix[answer.size()] == '1') {
-      /* 右がNULLならそこに新たなノードをぶら下げる */
-      if (p1->left == NULL )
-      {
-        printf("error\n");
-      }
       if (p1->blackOrWhite==false && p1->left == NULL){
         printf("skip active case 1\n");
         std::string last_str = "";
@@ -323,7 +332,7 @@ std::string makearray(entry_type entry,std::string str){
   }
   int i;
   int binary[32];
-  int decimal = entry.prefix >> (32 - entry.length);
+  uint decimal = entry.prefix >> (32 - entry.length);
   int count =0;
 
   for(i=0;decimal>0;i++){
@@ -408,29 +417,36 @@ std::string makebit_a(char* ar2,char* ar3,char* ar4,char* ar5){
   int    b = std::stoi(ar3); // 3
   int    c = std::stoi(ar4); // 3
   int    d = std::stoi(ar5); // 3
-printf("a = %d\n", a);
   uint e = a << 24 | b << 16 |c << 8 | d;
   int count = 0;
   int i;
   int binary[32];
   printf("e = %u\n", e);
 
-  for(i=0;e>0;i++){
-    binary[i] = e % 2;
-    e = e / 2;
+  int nonExistLength = 32 - toTwo(e);//25
+  int k = 0;
+  for (k = 0; k < nonExistLength; ++k)
+  {
+    str+= "0";
+  }
+  uint decimal = e;
+
+  for(i=0;decimal>0;i++){
+    binary[i] = decimal % 2;
+    decimal = decimal / 2;
     count = i;
   }
 
   while(count >= 0){
     if (binary[count] == 1)
-    {
-      str+= "1";
-    }else{
-      str+= "0";
-    }
+      {
+        str+= "1";
+      }else{
+        str+= "0";
+      }
     count--;
   }
-  std::cout << "makebit = " + str;
+  std::cout << "str = " + str;
   return str;
 }
 
