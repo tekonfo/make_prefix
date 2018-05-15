@@ -150,6 +150,28 @@ int rollback_node(_node *p1,_node *p2){
 }
 
 
+
+int search_not_match(std::string answer,std::string givenPrefix){
+  int count = 0;
+  while(1){
+    if (givenPrefix[count] == answer[count])
+    {
+      count++;
+    }else{
+      return count;
+    }
+  }
+}
+
+int child_is_left(int not_match,std::string answer){
+  if (answer[not_match] == '0')
+  {
+    return 1;
+  }else{
+    return 0;
+  }
+}
+
 /* 二分探索木の生成 -- 再帰を利用*/
 void maketree(_node *p1, int deep,entry_type entry,std::string gavePrefix)
 {
@@ -173,27 +195,37 @@ void maketree(_node *p1, int deep,entry_type entry,std::string gavePrefix)
 
   if (answer.size() > givenPrefix.size() || answer != givenPrefix.substr(0, answer.size()))
   {
-
-
-
-    if (p1->skipval.size() > 0)
-    {
-      last_skipval = p1->skipval.back(); // last_skipvalはskipvalの最後
-    }else{
-      last_skipval = answer[answer.size()-2];
-      p1->str.pop_back();
-      p1->str.pop_back();
-    }
-
-
-
     printf("start rollback\n");
-    std::string  nextstr;
-    nextstr = p1->str;
-    nextstr.pop_back();
-    nextstr = nextstr + last_skipval;
-    p1->skipval.pop_back();
+    //どの位置から一致していないのかを検索する
+    int match_correct = search_not_match(answer,givenPrefix);
     rollback_node(p1,p2);
+    if(child_is_left(match_correct,answer)){
+      set_node(p2,answer.substr(0,match_correct),"",0,false,p1,NULL,p1->b_left,p1->b_right);
+      set_node(p1,answer,"",0,false,p1->left,p1->right,NULL,p2);
+      maketree(p2, deep, entry,givenPrefix);
+    }else{
+      set_node(p2,answer.substr(0,match_correct),"",0,false,NULL,p1,p1->b_left,p1->b_right);
+      set_node(p1,answer,"",0,false,p1->left,p1->right,p2,NULL);
+      maketree(p2, deep, entry,givenPrefix);
+    }
+    // if (p1->skipval.size() > 0)
+    // {
+    //   last_skipval = p1->skipval.back(); // last_skipvalはskipvalの最後
+    // }else{
+    //   last_skipval = answer[answer.size()-2];
+    //   p1->str.pop_back();
+    //   p1->str.pop_back();
+    // }
+
+
+
+    // printf("start rollback\n");
+    // std::string  nextstr;
+    // nextstr = p1->str;
+    // nextstr.pop_back();
+    // nextstr = nextstr + last_skipval;
+    // p1->skipval.pop_back();
+    // rollback_node(p1,p2);
 
 
 
