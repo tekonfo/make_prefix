@@ -197,57 +197,59 @@ void maketree(_node *p1, int deep,entry_type entry,std::string gavePrefix)
 
 
 
-    if (answer[answer.back()-1] == '1')
-    {
-      if (p1->right != NULL && p1->left == NULL)
-      {
-        printf("lollback P is 1 and child = 1\n");
-        set_node(p2,nextstr,p1->skipval,p1->skipnum - 1,false,NULL,p1->right,p1->b_left,p1->b_right);
-        _node *p3 = p1->right;
-        p3->b_left = p2;
-        maketree(p2, deep, entry,givenPrefix);
-      }else if(p1->right == NULL && p1->left != NULL){
-        printf("lollback P is 1 and child = 0\n");
-        set_node(p2,nextstr,p1->skipval,p1->skipnum - 1,false,p1->left,NULL,p1->b_left,p1->b_right);
-        _node *p3 = p1->left;
-        p3->b_right = p2;
-        maketree(p2, deep, entry,givenPrefix);
-      }else{
-        printf("lollback P is 1 and child are both\n");
-        set_node(p2,nextstr,p1->skipval,p1->skipnum - 1,false,NULL,p1,p1->b_left,p1->b_right);
-        set_node(p1,answer,"",0,p1->blackOrWhite,p1->left,p1->right,p2,NULL);
-        maketree(p2, deep, entry,givenPrefix);
-      }
-    }else{
-      if (p1->right != NULL && p1->left == NULL)
-      {
-        printf("lollback P is 0 and child = 1\n");
-        if (p1->str.size()>0)
-        {
-          p1->str.pop_back();
-        }
-        set_node(p2,nextstr,p1->skipval,p1->skipnum - 1,false,NULL,p1->right,p1->b_left,p1->b_right);
-        _node *p3 = p1->right;
-        p3->b_left = p2;
-        maketree(p2, deep, entry,givenPrefix);
-      }else if(p1->right == NULL && p1->left != NULL){
-        printf("lollback P is 0 and child = 0\n");
-        if (p1->str.size()>0)
-        {
-          p1->str.pop_back();
-        }
-        set_node(p2,nextstr,p1->skipval,p1->skipnum,false,p1->left,NULL,p1->b_left,p1->b_right);
-        _node *p3 = p1->left;
-        p3->b_right = p2;
-        maketree(p2, deep, entry,givenPrefix);
-      }else{
-        printf("lollback P is 0 and child are both or empty\n");
-        set_node(p2,nextstr,p1->skipval,0,false,p1,NULL,p1->b_left,p1->b_right);
-        set_node(p1,answer,"",0,p1->blackOrWhite,p1->left,p1->right,NULL,p2);
-        maketree(p2, deep, entry,givenPrefix);
-      }
-    }
-    return;
+    // if (answer[answer.back()-1] == '1')
+    // {
+    //   if (p1->right != NULL && p1->left == NULL)
+    //   {
+    //     printf("lollback P is 1 and child = 1\n");
+    //     set_node(p2,nextstr,p1->skipval,p1->skipnum - 1,false,NULL,p1->right,p1->b_left,p1->b_right);
+    //     _node *p3 = p1->right;
+    //     p3->b_left = p2;
+    //     maketree(p2, deep, entry,givenPrefix);
+    //   }else if(p1->right == NULL && p1->left != NULL){
+    //     printf("lollback P is 1 and child = 0\n");
+    //     set_node(p2,nextstr,p1->skipval,p1->skipnum - 1,false,p1->left,NULL,p1->b_left,p1->b_right);
+    //     _node *p3 = p1->left;
+    //     p3->b_right = p2;
+    //     maketree(p2, deep, entry,givenPrefix);
+    //   }else{
+    //     printf("lollback P is 1 and child are both\n");
+    //     set_node(p2,nextstr,p1->skipval,p1->skipnum - 1,false,NULL,p1,p1->b_left,p1->b_right);
+    //     set_node(p1,answer,"",0,p1->blackOrWhite,p1->left,p1->right,p2,NULL);
+    //     maketree(p2, deep, entry,givenPrefix);
+    //   }
+    // }else{
+    //   if (p1->right != NULL && p1->left == NULL)
+    //   {
+    //     printf("lollback P is 0 and child = 1\n");
+    //     if (p1->str.size()>0)
+    //     {
+    //       p1->str.pop_back();
+    //     }
+    //     set_node(p2,nextstr,p1->skipval,p1->skipnum - 1,false,NULL,p1->right,p1->b_left,p1->b_right);
+    //     _node *p3 = p1->right;
+    //     p3->b_left = p2;
+    //     maketree(p2, deep, entry,givenPrefix);
+    //   }else if(p1->right == NULL && p1->left != NULL){
+    //     printf("lollback P is 0 and child = 0\n");
+    //     if (p1->str.size()>0)
+    //     {
+    //       p1->str.pop_back();
+    //     }
+    //     set_node(p2,nextstr,p1->skipval,p1->skipnum,false,p1->left,NULL,p1->b_left,p1->b_right);
+    //     _node *p3 = p1->left;
+    //     p3->b_right = p2;
+    //     maketree(p2, deep, entry,givenPrefix);
+    //   }else{
+    //     printf("lollback P is 0 and child are both or empty\n");
+    //     set_node(p2,nextstr,p1->skipval,0,false,p1,NULL,p1->b_left,p1->b_right);
+    //     set_node(p1,answer,"",0,p1->blackOrWhite,p1->left,p1->right,NULL,p2);
+    //     maketree(p2, deep, entry,givenPrefix);
+    //   }
+    // }
+    // return;
+
+
   }
 
 
