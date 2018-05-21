@@ -28,7 +28,7 @@ typedef struct _n {
 
 int search(_node *p,std::string gavePrefix)
 {
-  std::cout << "\n gavePrefix = " + gavePrefix;
+  //std::cout << "\n gavePrefix = " + gavePrefix;
   std::string latest_long_prefix;
   uint ac_number = 0;
   std::string answer;
@@ -39,46 +39,28 @@ int search(_node *p,std::string gavePrefix)
     }else{
       answer = p->skipval;
     }
-      //std::cout << "\nanswer= " + answer;
-    // if (gavePrefix.length() < answer.length())
-    // {//終わり
-    //   printf("一致経路は見つかりませんでした。\n");
-    //   std::cout << "\nlatest_long_prefix = " + latest_long_prefix;
-    //   return -1;
-    // }
       if (answer.size() > 0 && gavePrefix.substr(0,answer.size()) != answer)
       {
-        printf("route not match\n");
-        std::cout << "\nlatest_long_prefix = " + latest_long_prefix;
-        printf("ac番号は %uです\n",ac_number);
+        // printf("route not match\n");
+        // std::cout << "\nlatest_long_prefix = " + latest_long_prefix;
+        // printf("ac番号は %uです\n",ac_number);
         return -1;
       }
-//次の文字がいちかどうかで検索
     if (p->blackOrWhite == true)
     {
       latest_long_prefix = answer;
       ac_number = p->asc;
-      //std::cout << "\nlatest_long_prefix = " + latest_long_prefix;
     }
-
-    //printf("gavePrefix answer is %lu\n", answer.length());
-    // if (gavePrefix == answer) {
-    //   printf("経路が一致しました。ac番号は%dです。\n",p->asc );
-    //   return p->asc;  /* 値が見付かれば終了 */
-    // } else
     if (gavePrefix[answer.length()] == '1') {
       p = p->right;
-      //printf("右に行くます\n");
     } else {
-      //printf("左に行きます\n");
       p = p->left;
     }
   }
-  /* ループを抜け出たということは見付からなかったということ */
-  printf("最長経路は\n");
-  std::cout << latest_long_prefix;
-  printf("です\n");
-  printf("ac番号は %uです\n",ac_number);
+  // printf("最長経路は\n");
+  // std::cout << latest_long_prefix;
+  // printf("です\n");
+  // printf("ac番号は %uです\n",ac_number);
   return -1;
 }
 
@@ -412,7 +394,7 @@ void strinit(char s[], int num)
 /* ---------------------------------------------
    main
    ---------------------------------------------- */
-void makeStruct(std::vector<entry_type> entry_list,std::string makep)
+_node* makeStruct(std::vector<entry_type> entry_list,std::string makep)
 {
 printf("start\n");
   _node *start, *p1;
@@ -443,7 +425,7 @@ printf("start\n");
     maketree(start, 0, entry_list[i],str);
     /* code */
   }
-  search(start,makep);
+  return start;
 }
 
 
@@ -481,10 +463,42 @@ std::string makebit_a(char* ar2,char* ar3,char* ar4,char* ar5){
       }
     count--;
   }
-  std::cout << "str = " + str;
+  //std::cout << "str = " + str;
   return str;
 }
 
+std::string make_answer_prefix(uint prefix){
+  std::string str = "";
+  int count = 0;
+  int i;
+  int binary[32];
+  int nonExistLength = 32 - toTwo(prefix);//25
+  int k = 0;
+  for (k = 0; k < nonExistLength; ++k)
+  {
+    str+= "0";
+  }
+  uint decimal = prefix;
+
+  for(i=0;decimal>0;i++){
+    binary[i] = decimal % 2;
+    decimal = decimal / 2;
+    count = i;
+  }
+
+  while(count >= 0){
+    if (binary[count] == 1)
+      {
+        str+= "1";
+      }else{
+        str+= "0";
+      }
+    count--;
+  }
+
+  //std::cout << "str = " + str;
+  return str;
+}
 
 //https://www.grapecity.com/tools/support/powernews/column/clang/052/page03.htmを
 //をコピペした

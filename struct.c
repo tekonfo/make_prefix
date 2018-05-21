@@ -219,7 +219,7 @@ void strinit(char s[], int num)
 /* ---------------------------------------------
    main
    ---------------------------------------------- */
-void makeStruct(std::vector<entry_type> entry_list)
+_node* makeOldStruct(std::vector<entry_type> entry_list)
 {
 printf("start\n");
   _node *start, *p1;
@@ -246,6 +246,7 @@ printf("start\n");
     /* code */
   }
   /* 木構造をたどって探索 */
+  return start;
 }
 
 
