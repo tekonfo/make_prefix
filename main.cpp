@@ -87,6 +87,7 @@ int main(int argc, char *argv[])
 
       search(start,prefix);
 
+
       __asm__ volatile("RDTSCP\n\t"
                "mov %%edx, %0\n\t"
                "mov %%eax, %1\n\t"
@@ -107,7 +108,7 @@ int main(int argc, char *argv[])
 
 
     std::cout << all_number << std::endl;
-
+    printf("node number = %d\n", count_node(start,0));
     // std::copy(entry_list.begin(), entry_list.end(), std::ostream_iterator<entry_type>(std::cout, "\n"));
     std::for_each(entry_list.begin(), entry_list.end(), [](const entry_type& obj) {
        //     std::cout << obj.prefix << std::endl;

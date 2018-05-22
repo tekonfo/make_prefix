@@ -26,6 +26,21 @@ typedef struct _n {
 } _node;
 
 
+int count_node(_node *p,int count){
+  count ++;
+
+  if (p->right != NULL)
+  {
+    count = count_node(p->right,count);
+  }
+
+  if (p->left != NULL)
+  {
+    count = count_node(p->left,count);
+  }
+  return count;
+}
+
 int search(_node *p,std::string gavePrefix)
 {
   //std::cout << "\n gavePrefix = " + gavePrefix;
